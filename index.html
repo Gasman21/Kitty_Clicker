@@ -41,6 +41,29 @@
         font-size: var(--font-body);
         line-height: 1.5;
     }
+    .rebirth-level-badge {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: 15;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        min-width: 54px;
+        min-height: 44px;
+        box-sizing: border-box;
+        padding: 0 10px;
+        border: 2px solid #f5c542;
+        border-radius: 24px;
+        background: var(--black);
+        color: #f5c542;
+        font-weight: bold;
+    }
+    .rebirth-level-badge span:first-child {
+        font-size: 20px;
+        line-height: 1;
+    }
     body h1,
     body h2,
     body h3,
@@ -299,6 +322,10 @@
     }
 </style>
 <body style="background-color: var(--black); color: var(--white); text-align: center;">
+    <div id="rebirth-level-badge" class="rebirth-level-badge" role="img" aria-label="Rebirth level 0">
+        <span aria-hidden="true">&#9733;</span>
+        <span id="rebirth-level-value" aria-hidden="true">0</span>
+    </div>
     <h1 style="color: var(--white);">
        Kitty Clicker
     
@@ -614,6 +641,8 @@
         let luckyUpgradeButton = document.getElementById("lucky-upgrade");
         let rebirthCostDisp = document.getElementById("rebirth-cost");
         let rebirthCountDisp = document.getElementById("rebirth-count");
+        let rebirthLevelBadge = document.getElementById("rebirth-level-badge");
+        let rebirthLevelValue = document.getElementById("rebirth-level-value");
         let earningsMultiplierDisp = document.getElementById("earnings-multiplier");
         let themeNameDisp = document.getElementById("theme-name");
         let rebirthButton = document.getElementById("rebirth-button");
@@ -765,6 +794,8 @@
             let rebirthCost = 1000 * Math.pow(5, rebirth_count);
             rebirthCostDisp.textContent = rebirthCost;
             rebirthCountDisp.textContent = rebirth_count;
+            rebirthLevelValue.textContent = rebirth_count;
+            rebirthLevelBadge.setAttribute("aria-label", "Rebirth level " + rebirth_count);
             earningsMultiplierDisp.textContent = Number(earnings_multiplier.toFixed(2));
             themeNameDisp.textContent = currentTheme;
             rebirthButton.setAttribute("aria-disabled", String(click_count < rebirthCost));
