@@ -933,7 +933,15 @@
             let multiplierRolls = [1.25, 1.5, 1.75, 2];
             let multiplierGain = multiplierRolls[Math.floor(Math.random() * multiplierRolls.length)];
             let availableThemes = rebirthThemes.filter(function (theme) { return theme.name !== currentTheme; });
-            let newTheme = availableThemes[Math.floor(Math.random() * availableThemes.length)];
+            let ultraRareTheme = availableThemes.find(function (theme) { return theme.name === "Ultra rare colour :D"; });
+            let regularThemes = availableThemes.filter(function (theme) { return theme.name !== "Ultra rare colour :D"; });
+            let newTheme;
+            if (ultraRareTheme && Math.random() < 0.01) {
+                newTheme = ultraRareTheme;
+            } else {
+                let themePool = regularThemes.length > 0 ? regularThemes : availableThemes;
+                newTheme = themePool[Math.floor(Math.random() * themePool.length)];
+            }
 
             rebirth_count++;
             earnings_multiplier *= multiplierGain;
