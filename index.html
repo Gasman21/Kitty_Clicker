@@ -115,7 +115,7 @@
         font-weight: bold;
         text-shadow: 1px 2px 0 white;
         pointer-events: none;
-        animation: float-up 700ms ease-out forwards;
+        animation: float-up 1200ms ease-out forwards;
     }
     @keyframes float-up {
         from { opacity: 1; transform: translate(-50%, -50%) scale(0.7) rotate(-8deg); }
@@ -787,7 +787,7 @@
             feedback.style.left = x + "px";
             feedback.style.top = y + "px";
             document.body.appendChild(feedback);
-            setTimeout(function () { feedback.remove(); }, 700);
+            setTimeout(function () { feedback.remove(); }, 1200);
         }
 
         function updateRebirthUI() {
