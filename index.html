@@ -271,7 +271,7 @@
     }
     .rebirth-panel button[aria-disabled="true"] {
         opacity: 0.5;
-        cursor: not-allowed;
+        cursor: not-allowed1;
     }
     #achievement-notifications {
         position: fixed;
@@ -689,6 +689,79 @@
             { id: "eternal-kitty", target: 25, getProgress: function () { return rebirth_count; } },
         ];
 
+        const saveKey = "kitty-clicker-save-v1";
+
+        function saveGame() {
+            let saveData = {
+                version: 1,
+                click_count: click_count,
+                total_money_earned: total_money_earned,
+                upgrade_cost: upgrade_cost,
+                upgrade_count: upgrade_count,
+                auto_click_speed: auto_click_speed,
+                auto_speed_upgrade_cost: auto_speed_upgrade_cost,
+                auto_click_progress: auto_click_progress,
+                click_power: click_power,
+                click_earning_progress: click_earning_progress,
+                click_upgrade_cost: click_upgrade_cost,
+                lucky_level: lucky_level,
+                lucky_upgrade_cost: lucky_upgrade_cost,
+                rebirth_count: rebirth_count,
+                earnings_multiplier: earnings_multiplier,
+                currentTheme: currentTheme,
+                unlockedAchievements: Array.from(unlockedAchievements)
+            };
+
+            try {
+                localStorage.setItem(saveKey, JSON.stringify(saveData));
+            } catch (error) {
+                console.warn("Game progress could not be saved.", error);
+            }
+        }
+
+        function loadGame() {
+            try {
+                let savedData = JSON.parse(localStorage.getItem(saveKey));
+                if (!savedData || savedData.version !== 1) return;
+
+                function savedNumber(key, fallback, minimum) {
+                    let value = savedData[key];
+                    return Number.isFinite(value) && value >= minimum ? value : fallback;
+                }
+
+                click_count = Math.floor(savedNumber("click_count", click_count, 0));
+                total_money_earned = Math.floor(savedNumber("total_money_earned", total_money_earned, 0));
+                upgrade_cost = Math.floor(savedNumber("upgrade_cost", upgrade_cost, 10));
+                upgrade_count = Math.floor(savedNumber("upgrade_count", upgrade_count, 0));
+                auto_click_speed = savedNumber("auto_click_speed", auto_click_speed, 1);
+                auto_speed_upgrade_cost = Math.floor(savedNumber("auto_speed_upgrade_cost", auto_speed_upgrade_cost, 100));
+                auto_click_progress = savedNumber("auto_click_progress", auto_click_progress, 0);
+                click_power = savedNumber("click_power", click_power, 1);
+                click_earning_progress = savedNumber("click_earning_progress", click_earning_progress, 0);
+                click_upgrade_cost = Math.floor(savedNumber("click_upgrade_cost", click_upgrade_cost, 25));
+                lucky_level = Math.min(5, Math.floor(savedNumber("lucky_level", lucky_level, 0)));
+                lucky_upgrade_cost = Math.floor(savedNumber("lucky_upgrade_cost", lucky_upgrade_cost, 75));
+                rebirth_count = Math.floor(savedNumber("rebirth_count", rebirth_count, 0));
+                earnings_multiplier = savedNumber("earnings_multiplier", earnings_multiplier, 1);
+
+                if (Array.isArray(savedData.unlockedAchievements)) {
+                    let achievementIds = new Set(achievements.map(function (achievement) { return achievement.id; }));
+                    unlockedAchievements = new Set(savedData.unlockedAchievements.filter(function (id) {
+                        return achievementIds.has(id);
+                    }));
+                }
+
+                if (savedData.currentTheme === "Rainbow") {
+                    applyRainbowTheme();
+                } else {
+                    let savedTheme = rebirthThemes.find(function (theme) { return theme.name === savedData.currentTheme; });
+                    if (savedTheme) applyTheme(savedTheme);
+                }
+            } catch (error) {
+                console.warn("Saved game data could not be loaded.", error);
+            }
+        }
+
         function showAchievementNotification(title) {
             let notification = document.createElement("div");
             notification.className = "achievement-notification";
@@ -837,6 +910,7 @@
             showClickEffect(luckyHit ? earned + "!" : earned, event.clientX, event.clientY);
             updateAchievements();
             updateRebirthUI();
+            saveGame();
         });
 
         setInterval(function () {
@@ -872,6 +946,7 @@
             updateAutoSpeedUI();
             updateAchievements();
             updateRebirthUI();
+            saveGame();
         });
 
         document.getElementById("click-upgrade").addEventListener("click", function () {
@@ -887,6 +962,7 @@
             clickPowerDisp.innerHTML = click_power;
             updateAchievements();
             updateRebirthUI();
+            saveGame();
         });
 
         document.getElementById("lucky-upgrade").addEventListener("click", function () {
@@ -907,6 +983,7 @@
             }
             updateAchievements();
             updateRebirthUI();
+            saveGame();
         });
 
         document.getElementById("auto-speed-upgrade").addEventListener("click", function () {
@@ -920,6 +997,7 @@
             disp.textContent = click_count;
             updateAutoSpeedUI();
             updateRebirthUI();
+            saveGame();
         });
 
         rebirthButton.addEventListener("click", function () {
@@ -970,11 +1048,25 @@
             applyTheme(newTheme);
             updateAchievements();
             updateRebirthUI();
+            saveGame();
         });
 
+        loadGame();
+        disp.textContent = click_count;
+        upgradeDisp.textContent = upgrade_cost;
+        upgradeCountDisp.textContent = upgrade_count;
+        clickUpgradeDisp.textContent = click_upgrade_cost;
+        clickPowerDisp.textContent = click_power;
+        luckyChanceDisp.textContent = lucky_level * 10 + "%";
+        luckyCostDisp.textContent = lucky_upgrade_cost;
+        luckyUpgradeButton.disabled = lucky_level >= 5;
+        luckyUpgradeButton.setAttribute("aria-label", lucky_level >= 5 ? "Lucky Paw is at max level" : "Buy Lucky Paw");
         updateAchievements();
         updateAutoSpeedUI();
         updateRebirthUI();
+        saveGame();
+        setInterval(saveGame, 1000);
+        window.addEventListener("pagehide", saveGame);
 
     </script>
 </body>
