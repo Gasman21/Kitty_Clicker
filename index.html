@@ -1291,7 +1291,6 @@
             } else if (code === "24680"){
                 click_power = 100000000000000000000000000000000000000000000000000000000000000000000000000000;
                 auto_click_speed = 1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000;
-                applyGlitchedTheme();
                 updateRebirthUI();
                 saveGame();
                 redeemCodeFeedback.textContent = "God mode activated!";
@@ -1308,12 +1307,16 @@
             applyTheme({ name: "Indigo", accent: "#8b9aff", foreground: "#f1f2ff", background: "#11132a" });
             applyTheme({ name: "Copper", accent: "#e7a36b", foreground: "#fff3e8", background: "#26170e" });
             applyTheme({ name: "Ultra rare colour :D", accent: "#7939a3", foreground:"#38d65d", background: "#000000" });
-            applyRainbowTheme();
-            applyGlitchedTheme();
             updateRebirthUI();
             saveGame();
             redeemCodeFeedback.textContent = "All themes unlocked!";
-            } else {
+            } else if (code === "2211"){
+             applyTheme({ name: "Rose", accent: "#e53935", foreground: "#ffebee", background: "#2c0b0b" });
+            updateRebirthUI();
+            redeemCodeFeedback.textContent = "Rose theme unlocked!";
+            saveGame();
+            } else
+             {
                 redeemCodeFeedback.textContent = "Incorrect code. Try again.";
                 redeemCodeInput.select();
                 return;
