@@ -259,6 +259,21 @@
         background: transparent;
         cursor: pointer;
     }
+    .wipe-save-button {
+        display: block;
+        margin: 0 auto 24px;
+        padding: 10px 18px;
+        border: 2px solid #ff595e;
+        border-radius: 4px;
+        background: var(--black);
+        color: #ff8a8f;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .wipe-save-button:hover {
+        background: #ff595e;
+        color: #ffffff;
+    }
     .rebirth-panel button img {
         display: block;
         width: min(250px, 100%);
@@ -408,6 +423,7 @@
             <p>Next rebirth bonus: random x1.25 to x2 money multiplier and a new color theme.</p>
             <p>Current theme: <span id="theme-name">Classic</span></p>
         </section>
+        <button id="wipe-save-button" class="wipe-save-button" type="button">Wipe Save</button>
     </section>
     <section id="achievements-page" hidden>
         <h2 style="color: var(--white);">Achievements</h2>
@@ -1065,8 +1081,22 @@
         updateAutoSpeedUI();
         updateRebirthUI();
         saveGame();
-        setInterval(saveGame, 1000);
+        let autosaveTimer = setInterval(saveGame, 1000);
         window.addEventListener("pagehide", saveGame);
+        document.getElementById("wipe-save-button").addEventListener("click", function () {
+            if (!window.confirm("Wipe all saved progress on this device? This cannot be undone.")) return;
+
+            try {
+                localStorage.removeItem(saveKey);
+            } catch (error) {
+                window.alert("The saved game could not be erased.");
+                return;
+            }
+
+            clearInterval(autosaveTimer);
+            window.removeEventListener("pagehide", saveGame);
+            window.location.reload();
+        });
 
     </script>
 </body>
