@@ -137,46 +137,10 @@
     .theme-inventory-panel h2 {
         margin-top: 0;
     }
-    .theme-category-tabs {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin: 0 0 16px;
-    }
-    .theme-category-button {
-        min-height: 40px;
-        padding: 8px 14px;
-        border: 2px solid var(--red);
-        border-radius: 4px;
-        background: transparent;
-        color: var(--white);
-        cursor: pointer;
-    }
-    .theme-category-button[aria-selected="true"] {
-        background: var(--red);
-    }
     .theme-inventory-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
         gap: 8px;
-    }
-    .button-skin-preview {
-        width: 28px;
-        height: 28px;
-        border: 2px solid currentColor;
-        border-radius: 50%;
-        background: #ffffff;
-        box-shadow: 0 0 8px currentColor;
-    }
-    .button-skin-preview.skin-cotton-candy {
-        background: linear-gradient(135deg, #ff8bd1 0 50%, #8cecff 50%);
-    }
-    .button-skin-preview.skin-golden {
-        background: linear-gradient(135deg, #fff1a8, #e3a624);
-    }
-    .button-skin-preview.skin-mint-glow {
-        background: linear-gradient(135deg, #d8ffe5, #39c991);
     }
     .theme-inventory-button {
         display: flex;
@@ -311,18 +275,6 @@
         background: transparent;
         cursor: pointer;
         transition: transform 160ms ease, filter 160ms ease;
-    }
-    #btn img {
-        transition: filter 180ms ease;
-    }
-    #btn.skin-cotton-candy img {
-        filter: hue-rotate(285deg) saturate(1.55) drop-shadow(0 0 8px #ff8bd1);
-    }
-    #btn.skin-golden img {
-        filter: sepia(0.45) saturate(1.6) drop-shadow(0 0 9px #ffc94a);
-    }
-    #btn.skin-mint-glow img {
-        filter: hue-rotate(85deg) saturate(1.35) drop-shadow(0 0 9px #57e0a8);
     }
     #btn:hover {
         transform: scale(1.06) rotate(-2deg);
@@ -664,17 +616,8 @@
     <section id="themes-page" hidden>
         <h2 style="color: var(--white);">Themes</h2>
         <section class="theme-inventory-panel" aria-labelledby="theme-inventory-title">
-            <h2 id="theme-inventory-title">Inventory</h2>
-            <div class="theme-category-tabs" role="tablist" aria-label="Theme categories">
-                <button id="color-themes-category" class="theme-category-button" type="button" role="tab" aria-selected="true" aria-controls="color-themes-panel">Color Themes</button>
-                <button id="button-skins-category" class="theme-category-button" type="button" role="tab" aria-selected="false" aria-controls="button-skins-panel">Button Skins</button>
-            </div>
-            <div id="color-themes-panel" role="tabpanel" aria-labelledby="color-themes-category">
-                <div id="theme-inventory" class="theme-inventory-grid" aria-label="Unlocked color themes"></div>
-            </div>
-            <div id="button-skins-panel" role="tabpanel" aria-labelledby="button-skins-category" hidden>
-                <div id="button-skin-inventory" class="theme-inventory-grid" aria-label="Button skins"></div>
-            </div>
+            <h2 id="theme-inventory-title">Theme Inventory</h2>
+            <div id="theme-inventory" class="theme-inventory-grid" aria-label="Unlocked themes"></div>
         </section>
     </section>
     <section id="achievements-page" hidden>
@@ -881,14 +824,7 @@
         let rebirth_count = 0;
         let earnings_multiplier = 1;
         let currentTheme = "Classic";
-        let currentButtonSkin = "skin-classic";
         let ownedThemes = new Set(["Classic"]);
-        let buttonSkins = [
-            { id: "skin-classic", name: "Classic", preview: "" },
-            { id: "skin-cotton-candy", name: "Cotton Candy", preview: "skin-cotton-candy" },
-            { id: "skin-golden", name: "Golden", preview: "skin-golden" },
-            { id: "skin-mint-glow", name: "Mint Glow", preview: "skin-mint-glow" }
-        ];
         let rebirthThemes = [
             { name: "Ocean", accent: "#36c5f0", foreground: "#eefaff", background: "#061b2c" },
             { name: "Forest", accent: "#59c173", foreground: "#f0fff4", background: "#071d10" },
@@ -940,11 +876,6 @@
         let earningsMultiplierDisp = document.getElementById("earnings-multiplier");
         let themeNameDisp = document.getElementById("theme-name");
         let themeInventoryDisp = document.getElementById("theme-inventory");
-        let buttonSkinInventoryDisp = document.getElementById("button-skin-inventory");
-        let colorThemesCategory = document.getElementById("color-themes-category");
-        let buttonSkinsCategory = document.getElementById("button-skins-category");
-        let colorThemesPanel = document.getElementById("color-themes-panel");
-        let buttonSkinsPanel = document.getElementById("button-skins-panel");
         let rebirthButton = document.getElementById("rebirth-button");
         let gamePage = document.getElementById("game-page");
         let shopPage = document.getElementById("shop-page");
@@ -1012,7 +943,6 @@
                 rebirth_count: rebirth_count,
                 earnings_multiplier: earnings_multiplier,
                 currentTheme: currentTheme,
-                currentButtonSkin: currentButtonSkin,
                 ownedThemes: Array.from(ownedThemes),
                 unlockedAchievements: Array.from(unlockedAchievements)
             };
@@ -1038,9 +968,6 @@
                 click_count = money_code_redeemed
                     ? Infinity
                     : Math.floor(savedNumber("click_count", click_count, 0));
-                if (buttonSkins.some(function (skin) { return skin.id === savedData.currentButtonSkin; })) {
-                    currentButtonSkin = savedData.currentButtonSkin;
-                }
                 total_money_earned = Math.floor(savedNumber("total_money_earned", total_money_earned, 0));
                 upgrade_cost = Math.floor(savedNumber("upgrade_cost", upgrade_cost, 10));
                 upgrade_count = Math.floor(savedNumber("upgrade_count", upgrade_count, 0));
@@ -1188,20 +1115,6 @@
             achievementTab.setAttribute("aria-selected", "true");
         });
 
-        colorThemesCategory.addEventListener("click", function () {
-            colorThemesPanel.hidden = false;
-            buttonSkinsPanel.hidden = true;
-            colorThemesCategory.setAttribute("aria-selected", "true");
-            buttonSkinsCategory.setAttribute("aria-selected", "false");
-        });
-
-        buttonSkinsCategory.addEventListener("click", function () {
-            colorThemesPanel.hidden = true;
-            buttonSkinsPanel.hidden = false;
-            colorThemesCategory.setAttribute("aria-selected", "false");
-            buttonSkinsCategory.setAttribute("aria-selected", "true");
-        });
-
         function showClickEffect(amount, x, y) {
             if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
                 btn.animate([
@@ -1330,38 +1243,6 @@
                 }
                 themeInventoryDisp.appendChild(themeButton);
             }
-        }
-
-        function renderButtonSkinInventory() {
-            buttonSkinInventoryDisp.replaceChildren();
-            for (let skin of buttonSkins) {
-                let skinButton = document.createElement("button");
-                let preview = document.createElement("span");
-                let name = document.createElement("span");
-                let isEquipped = skin.id === currentButtonSkin;
-                skinButton.type = "button";
-                skinButton.className = "theme-inventory-button";
-                skinButton.setAttribute("aria-pressed", String(isEquipped));
-                preview.className = "button-skin-preview " + skin.preview;
-                preview.setAttribute("aria-hidden", "true");
-                name.textContent = isEquipped ? skin.name + " (Equipped)" : skin.name;
-                skinButton.append(preview, name);
-                skinButton.addEventListener("click", function () {
-                    equipButtonSkin(skin.id);
-                });
-                buttonSkinInventoryDisp.appendChild(skinButton);
-            }
-        }
-
-        function equipButtonSkin(skinId) {
-            let selectedSkin = buttonSkins.find(function (skin) { return skin.id === skinId; });
-            if (!selectedSkin) return;
-
-            currentButtonSkin = selectedSkin.id;
-            for (let skin of buttonSkins) btn.classList.remove(skin.id);
-            btn.classList.add(currentButtonSkin);
-            renderButtonSkinInventory();
-            saveGame();
         }
 
         function equipTheme(themeName) {
@@ -1577,7 +1458,6 @@
         });
 
         loadGame();
-        btn.classList.add(currentButtonSkin);
         updateMoneyDisplay();
         upgradeDisp.textContent = upgrade_cost;
         upgradeCountDisp.textContent = upgrade_count;
@@ -1591,7 +1471,6 @@
         updateAutoSpeedUI();
         updateRebirthUI();
         renderThemeInventory();
-        renderButtonSkinInventory();
         saveGame();
         let autosaveTimer = setInterval(saveGame, 1000);
         window.addEventListener("pagehide", saveGame);
