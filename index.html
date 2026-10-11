@@ -32,9 +32,18 @@
     }
     html.rainbow-theme .shop-item,
     html.rainbow-theme .achievement-item,
-    html.rainbow-theme .rebirth-panel {
+    html.rainbow-theme .rebirth-panel,
+    html.rainbow-theme .theme-inventory-panel {
         border-color: transparent;
         background: linear-gradient(var(--black), var(--black)) padding-box, var(--rainbow) border-box;
+    }
+    html.rainbow-theme .theme-inventory-button {
+        border-color: transparent;
+        background: linear-gradient(var(--black), var(--black)) padding-box, var(--rainbow) border-box;
+    }
+    html.rainbow-theme .theme-inventory-button[aria-pressed="true"] {
+        background: var(--rainbow);
+        color: var(--black);
     }
     html.glitched-theme {
         --glitch-cyan: #00f5ff;
@@ -55,9 +64,55 @@
     }
     html.glitched-theme .shop-item,
     html.glitched-theme .achievement-item,
-    html.glitched-theme .rebirth-panel {
+    html.glitched-theme .rebirth-panel,
+    html.glitched-theme .theme-inventory-panel {
         border-color: var(--glitch-cyan);
         box-shadow: 3px 0 rgba(255, 43, 214, 0.65);
+    }
+    html.glitched-theme .theme-inventory-button {
+        border-color: var(--glitch-cyan);
+        box-shadow: 2px 0 rgba(255, 43, 214, 0.8);
+    }
+    html.glitched-theme .theme-inventory-button[aria-pressed="true"] {
+        background: #ff2bd6;
+        color: #090a13;
+    }
+    .theme-inventory-button.locked,
+    html.rainbow-theme .theme-inventory-button.locked,
+    html.glitched-theme .theme-inventory-button.locked {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 72px;
+        border-color: #777777;
+        background: #585858;
+        color: #ffffff;
+        box-shadow: none;
+        opacity: 1;
+        cursor: not-allowed;
+    }
+    .theme-inventory-lock {
+        position: relative;
+        display: inline-block;
+        flex: 0 0 16px;
+        width: 16px;
+        height: 13px;
+        margin-top: 6px;
+        border: 2px solid currentColor;
+        border-radius: 2px;
+    }
+    .theme-inventory-lock::before {
+        position: absolute;
+        top: -9px;
+        left: 2px;
+        width: 8px;
+        height: 8px;
+        border: 2px solid currentColor;
+        border-bottom: 0;
+        border-radius: 6px 6px 0 0;
+        content: "";
     }
     .glitch-code-panel {
         width: min(420px, calc(100% - 32px));
@@ -68,6 +123,56 @@
         border-radius: 6px;
         background: var(--black);
         color: var(--white);
+    }
+    .theme-inventory-panel {
+        width: min(620px, calc(100% - 32px));
+        box-sizing: border-box;
+        margin: 24px auto;
+        padding: 16px;
+        border: 2px solid var(--red);
+        border-radius: 6px;
+        background: var(--black);
+        color: var(--white);
+    }
+    .theme-inventory-panel h2 {
+        margin-top: 0;
+    }
+    .theme-inventory-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+        gap: 8px;
+    }
+    .theme-inventory-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        min-width: 0;
+        min-height: 64px;
+        padding: 8px 10px;
+        border: 2px solid var(--red);
+        border-radius: 4px;
+        background: transparent;
+        color: var(--white);
+        cursor: pointer;
+        overflow-wrap: anywhere;
+    }
+    .theme-rarity {
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .theme-rarity-common { color: #d1d5db; }
+    .theme-rarity-uncommon { color: #65e6a5; }
+    .theme-rarity-rare { color: #75bcff; }
+    .theme-rarity-epic { color: #c69cff; }
+    .theme-rarity-mythic { color: #ff75dd; }
+    .theme-rarity-legendary { color: #ffd166; }
+    .theme-rarity-secret { color: #00f5ff; }
+    .theme-inventory-button[aria-pressed="true"] {
+        background: var(--red);
+        color: var(--white);
+        cursor: default;
     }
     .glitch-code-panel h2 {
         margin-top: 0;
@@ -422,6 +527,7 @@
     <nav class="tabs" aria-label="Main navigation">
         <button id="game-tab" type="button" aria-selected="true" aria-controls="game-page">Game</button>
         <button id="shop-tab" type="button" aria-selected="false" aria-controls="shop-page">Shop</button>
+        <button id="themes-tab" type="button" aria-selected="false" aria-controls="themes-page">Themes</button>
         <button id="achievements-tab" type="button" aria-selected="false" aria-controls="achievements-page">Achievements <span id="achievement-count">0/30</span></button>
     </nav>
     <main>
@@ -494,18 +600,25 @@
             <p>Next rebirth bonus: random x1.25 to x2 money multiplier and a new color theme.</p>
             <p>Current theme: <span id="theme-name">Classic</span></p>
         </section>
-        <section class="glitch-code-panel" aria-labelledby="glitch-code-title">
-            <h2 id="glitch-code-title">Secret Theme</h2>
-            <form id="glitch-code-form">
-                <label for="glitch-code-input">Enter the code here</label>
+        <section class="glitch-code-panel" aria-labelledby="redeem-code-title">
+            <h2 id="redeem-code-title">Redeem Code</h2>
+            <form id="redeem-code-form">
+                <label for="redeem-code-input">Enter a code</label>
                 <div class="glitch-code-controls">
-                    <input id="glitch-code-input" type="text" inputmode="numeric" autocomplete="off" maxlength="5" required>
-                    <button type="submit">Unlock theme</button>
+                    <input id="redeem-code-input" type="text" inputmode="numeric" autocomplete="off" maxlength="5" required>
+                    <button type="submit">Redeem</button>
                 </div>
-                <p id="glitch-code-feedback" role="status" aria-live="polite"></p>
+                <p id="redeem-code-feedback" role="status" aria-live="polite"></p>
             </form>
         </section>
         <button id="wipe-save-button" class="wipe-save-button" type="button">Wipe Save</button>
+    </section>
+    <section id="themes-page" hidden>
+        <h2 style="color: var(--white);">Themes</h2>
+        <section class="theme-inventory-panel" aria-labelledby="theme-inventory-title">
+            <h2 id="theme-inventory-title">Theme Inventory</h2>
+            <div id="theme-inventory" class="theme-inventory-grid" aria-label="Unlocked themes"></div>
+        </section>
     </section>
     <section id="achievements-page" hidden>
         <h2 style="color: var(--white);">Achievements</h2>
@@ -696,6 +809,7 @@
     <div id="achievement-notifications" aria-live="polite" aria-atomic="false"></div>
     <script type="text/javascript">
         let click_count = 0;
+        let money_code_redeemed = false;
         let total_money_earned = 0;
         let upgrade_cost = 10;
         let upgrade_count = 0;
@@ -710,6 +824,7 @@
         let rebirth_count = 0;
         let earnings_multiplier = 1;
         let currentTheme = "Classic";
+        let ownedThemes = new Set(["Classic"]);
         let rebirthThemes = [
             { name: "Ocean", accent: "#36c5f0", foreground: "#eefaff", background: "#061b2c" },
             { name: "Forest", accent: "#59c173", foreground: "#f0fff4", background: "#071d10" },
@@ -724,6 +839,23 @@
             { name: "Copper", accent: "#e7a36b", foreground: "#fff3e8", background: "#26170e" },
             { name: "Ultra rare colour :D", accent: "#7939a3", foreground:"#38d65d", background: "#000000" }
         ];
+        let themeRarities = {
+            "Classic": "Common",
+            "Ocean": "Uncommon",
+            "Forest": "Common",
+            "Violet": "Rare",
+            "Sunset": "Uncommon",
+            "Gold": "Common",
+            "Rose": "Common",
+            "Aqua": "Common",
+            "Coral": "Uncommon",
+            "Mint": "Uncommon",
+            "Indigo": "Rare",
+            "Copper": "Rare",
+            "Ultra rare colour :D": "Mythic",
+            "Rainbow": "Legendary",
+            "Glitched": "Secret"
+        };
         let btn = document.getElementById("btn");
         let disp = document.getElementById("display");
         let upgradeDisp = document.getElementById("upgrade-display");
@@ -743,12 +875,15 @@
         let rebirthLevelValue = document.getElementById("rebirth-level-value");
         let earningsMultiplierDisp = document.getElementById("earnings-multiplier");
         let themeNameDisp = document.getElementById("theme-name");
+        let themeInventoryDisp = document.getElementById("theme-inventory");
         let rebirthButton = document.getElementById("rebirth-button");
         let gamePage = document.getElementById("game-page");
         let shopPage = document.getElementById("shop-page");
+        let themesPage = document.getElementById("themes-page");
         let achievementPage = document.getElementById("achievements-page");
         let gameTab = document.getElementById("game-tab");
         let shopTab = document.getElementById("shop-tab");
+        let themesTab = document.getElementById("themes-tab");
         let achievementTab = document.getElementById("achievements-tab");
         let achievementCountDisp = document.getElementById("achievement-count");
         let achievementNotifications = document.getElementById("achievement-notifications");
@@ -793,6 +928,7 @@
             let saveData = {
                 version: 1,
                 click_count: click_count,
+                money_code_redeemed: money_code_redeemed,
                 total_money_earned: total_money_earned,
                 upgrade_cost: upgrade_cost,
                 upgrade_count: upgrade_count,
@@ -807,6 +943,7 @@
                 rebirth_count: rebirth_count,
                 earnings_multiplier: earnings_multiplier,
                 currentTheme: currentTheme,
+                ownedThemes: Array.from(ownedThemes),
                 unlockedAchievements: Array.from(unlockedAchievements)
             };
 
@@ -827,7 +964,10 @@
                     return Number.isFinite(value) && value >= minimum ? value : fallback;
                 }
 
-                click_count = Math.floor(savedNumber("click_count", click_count, 0));
+                money_code_redeemed = savedData.money_code_redeemed === true;
+                click_count = money_code_redeemed
+                    ? Infinity
+                    : Math.floor(savedNumber("click_count", click_count, 0));
                 total_money_earned = Math.floor(savedNumber("total_money_earned", total_money_earned, 0));
                 upgrade_cost = Math.floor(savedNumber("upgrade_cost", upgrade_cost, 10));
                 upgrade_count = Math.floor(savedNumber("upgrade_count", upgrade_count, 0));
@@ -849,6 +989,16 @@
                     }));
                 }
 
+                let validThemeNames = new Set(["Classic", "Rainbow", "Glitched"]);
+                for (let theme of rebirthThemes) validThemeNames.add(theme.name);
+                if (Array.isArray(savedData.ownedThemes)) {
+                    ownedThemes = new Set(savedData.ownedThemes.filter(function (name) {
+                        return validThemeNames.has(name);
+                    }));
+                }
+                ownedThemes.add("Classic");
+                if (unlockedAchievements.has("eternal-kitty")) ownedThemes.add("Rainbow");
+
                 if (savedData.currentTheme === "Rainbow") {
                     applyRainbowTheme();
                 } else if (savedData.currentTheme === "Glitched") {
@@ -860,6 +1010,10 @@
             } catch (error) {
                 console.warn("Saved game data could not be loaded.", error);
             }
+        }
+
+        function updateMoneyDisplay() {
+            disp.textContent = money_code_redeemed ? "\u221e" : click_count;
         }
 
         function showAchievementNotification(title) {
@@ -920,27 +1074,44 @@
         gameTab.addEventListener("click", function () {
             gamePage.hidden = false;
             shopPage.hidden = true;
+            themesPage.hidden = true;
             achievementPage.hidden = true;
             gameTab.setAttribute("aria-selected", "true");
             shopTab.setAttribute("aria-selected", "false");
+            themesTab.setAttribute("aria-selected", "false");
             achievementTab.setAttribute("aria-selected", "false");
         });
 
         shopTab.addEventListener("click", function () {
             gamePage.hidden = true;
             shopPage.hidden = false;
+            themesPage.hidden = true;
             achievementPage.hidden = true;
             gameTab.setAttribute("aria-selected", "false");
             shopTab.setAttribute("aria-selected", "true");
+            themesTab.setAttribute("aria-selected", "false");
+            achievementTab.setAttribute("aria-selected", "false");
+        });
+
+        themesTab.addEventListener("click", function () {
+            gamePage.hidden = true;
+            shopPage.hidden = true;
+            themesPage.hidden = false;
+            achievementPage.hidden = true;
+            gameTab.setAttribute("aria-selected", "false");
+            shopTab.setAttribute("aria-selected", "false");
+            themesTab.setAttribute("aria-selected", "true");
             achievementTab.setAttribute("aria-selected", "false");
         });
 
         achievementTab.addEventListener("click", function () {
             gamePage.hidden = true;
             shopPage.hidden = true;
+            themesPage.hidden = true;
             achievementPage.hidden = false;
             gameTab.setAttribute("aria-selected", "false");
             shopTab.setAttribute("aria-selected", "false");
+            themesTab.setAttribute("aria-selected", "false");
             achievementTab.setAttribute("aria-selected", "true");
         });
 
@@ -981,6 +1152,8 @@
             document.documentElement.style.setProperty("--white", theme.foreground);
             document.documentElement.style.setProperty("--black", theme.background);
             currentTheme = theme.name;
+            ownedThemes.add(theme.name);
+            renderThemeInventory();
         }
 
         function applyRainbowTheme() {
@@ -991,6 +1164,8 @@
             root.style.setProperty("--white", "#ffffff");
             root.style.setProperty("--black", "#120b1c");
             currentTheme = "Rainbow";
+            ownedThemes.add("Rainbow");
+            renderThemeInventory();
         }
 
         function applyGlitchedTheme() {
@@ -1001,25 +1176,125 @@
             root.style.setProperty("--white", "#efff00");
             root.style.setProperty("--black", "#090a13");
             currentTheme = "Glitched";
+            ownedThemes.add("Glitched");
+            renderThemeInventory();
         }
 
-        let glitchCodeForm = document.getElementById("glitch-code-form");
-        let glitchCodeInput = document.getElementById("glitch-code-input");
-        let glitchCodeFeedback = document.getElementById("glitch-code-feedback");
+        function renderThemeInventory() {
+            themeInventoryDisp.replaceChildren();
+            let allThemeNames = ["Classic"].concat(
+                rebirthThemes.map(function (theme) { return theme.name; }),
+                ["Rainbow", "Glitched"]
+            );
+            let rarityOrder = {
+                Common: 0,
+                Uncommon: 1,
+                Rare: 2,
+                Epic: 3,
+                Mythic: 4,
+                Legendary: 5,
+                Secret: 6
+            };
+            let ownedThemeNames = allThemeNames.filter(function (themeName) {
+                return ownedThemes.has(themeName);
+            });
+            let lockedThemeNames = allThemeNames.filter(function (themeName) {
+                return !ownedThemes.has(themeName);
+            });
+            ownedThemeNames.sort(function (a, b) {
+                if (a === currentTheme && b === currentTheme) return 0;
+                if (a === currentTheme) return -1;
+                if (b === currentTheme) return 1;
+                let rarityDifference = rarityOrder[themeRarities[a] || "Common"] - rarityOrder[themeRarities[b] || "Common"];
+                return rarityDifference || a.localeCompare(b);
+            });
+            lockedThemeNames.sort(function (a, b) {
+                let rarityDifference = rarityOrder[themeRarities[a] || "Common"] - rarityOrder[themeRarities[b] || "Common"];
+                return rarityDifference || a.localeCompare(b);
+            });
+            let orderedThemeNames = ownedThemeNames.concat(lockedThemeNames);
 
-        glitchCodeForm.addEventListener("submit", function (event) {
+            for (let themeName of orderedThemeNames) {
+                let themeButton = document.createElement("button");
+                let isOwned = ownedThemes.has(themeName);
+                let isEquipped = themeName === currentTheme;
+                let rarity = themeRarities[themeName] || "Common";
+                let rarityLabel = document.createElement("span");
+                themeButton.type = "button";
+                themeButton.className = "theme-inventory-button";
+                themeButton.setAttribute("aria-pressed", String(isEquipped));
+                rarityLabel.className = "theme-rarity theme-rarity-" + rarity.toLowerCase();
+                rarityLabel.textContent = rarity;
+                if (isOwned) {
+                    let themeLabel = document.createElement("span");
+                    themeLabel.textContent = isEquipped ? themeName + " (Equipped)" : themeName;
+                    themeButton.append(themeLabel, rarityLabel);
+                    themeButton.addEventListener("click", function () {
+                        equipTheme(themeName);
+                    });
+                } else {
+                    themeButton.classList.add("locked");
+                    themeButton.disabled = true;
+                    themeButton.setAttribute("aria-label", "Locked " + rarity + " theme");
+                    let lockIcon = document.createElement("span");
+                    lockIcon.className = "theme-inventory-lock";
+                    lockIcon.setAttribute("aria-hidden", "true");
+                    themeButton.append(lockIcon, rarityLabel);
+                }
+                themeInventoryDisp.appendChild(themeButton);
+            }
+        }
+
+        function equipTheme(themeName) {
+            if (!ownedThemes.has(themeName)) return;
+
+            if (themeName === "Rainbow") {
+                applyRainbowTheme();
+            } else if (themeName === "Glitched") {
+                applyGlitchedTheme();
+            } else if (themeName === "Classic") {
+                applyTheme({ name: "Classic", accent: "#c1121f", foreground: "#ffffff", background: "#000000" });
+            } else {
+                let theme = rebirthThemes.find(function (item) { return item.name === themeName; });
+                if (!theme) return;
+                applyTheme(theme);
+            }
+
+            updateRebirthUI();
+            saveGame();
+        }
+
+        let redeemCodeForm = document.getElementById("redeem-code-form");
+        let redeemCodeInput = document.getElementById("redeem-code-input");
+        let redeemCodeFeedback = document.getElementById("redeem-code-feedback");
+
+        redeemCodeForm.addEventListener("submit", function (event) {
             event.preventDefault();
-            if (glitchCodeInput.value.trim() !== "55937") {
-                glitchCodeFeedback.textContent = "Incorrect code. Try again.";
-                glitchCodeInput.select();
+            let code = redeemCodeInput.value.trim();
+
+            if (code === "55937") {
+                applyGlitchedTheme();
+                updateRebirthUI();
+                saveGame();
+                redeemCodeFeedback.textContent = "Glitched theme unlocked!";
+            } else if (code === "13579") {
+                if (money_code_redeemed) {
+                    redeemCodeFeedback.textContent = "Infinite money is already unlocked.";
+                    return;
+                }
+                money_code_redeemed = true;
+                click_count = Infinity;
+                updateMoneyDisplay();
+                updateRebirthUI();
+                saveGame();
+                redeemCodeFeedback.textContent = "Infinite money unlocked!";
+            } else {
+                redeemCodeFeedback.textContent = "Incorrect code. Try again.";
+                redeemCodeInput.select();
                 return;
             }
 
-            applyGlitchedTheme();
-            updateRebirthUI();
-            saveGame();
-            glitchCodeFeedback.textContent = "Glitched theme unlocked!";
-            glitchCodeInput.value = "";
+            redeemCodeInput.value = "";
         });
 
         function updateAutoSpeedUI() {
@@ -1037,7 +1312,7 @@
             click_earning_progress -= earned;
             click_count += earned;
             total_money_earned += earned;
-            disp.innerHTML = click_count;
+            updateMoneyDisplay();
             showClickEffect(luckyHit ? earned + "!" : earned, event.clientX, event.clientY);
             updateAchievements();
             updateRebirthUI();
@@ -1051,7 +1326,7 @@
                 auto_click_progress -= autoClicks;
                 click_count += autoClicks;
                 total_money_earned += autoClicks;
-                disp.innerHTML = click_count;
+                updateMoneyDisplay();
                 let kittyBounds = btn.getBoundingClientRect();
                 showClickEffect(
                     autoClicks,
@@ -1071,7 +1346,7 @@
             click_count -= upgrade_cost;
             upgrade_count++;
             upgrade_cost = Math.floor(upgrade_cost * 1.5);
-            disp.innerHTML = click_count;
+            updateMoneyDisplay();
             upgradeDisp.innerHTML = upgrade_cost;
             upgradeCountDisp.innerHTML = upgrade_count;
             updateAutoSpeedUI();
@@ -1088,7 +1363,7 @@
             click_count -= click_upgrade_cost;
             click_power *= 2;
             click_upgrade_cost = Math.floor(click_upgrade_cost * 1.8);
-            disp.innerHTML = click_count;
+            updateMoneyDisplay();
             clickUpgradeDisp.innerHTML = click_upgrade_cost;
             clickPowerDisp.innerHTML = click_power;
             updateAchievements();
@@ -1105,7 +1380,7 @@
             click_count -= lucky_upgrade_cost;
             lucky_level++;
             lucky_upgrade_cost = Math.floor(lucky_upgrade_cost * 1.8);
-            disp.innerHTML = click_count;
+            updateMoneyDisplay();
             luckyChanceDisp.innerHTML = lucky_level * 10 + "%";
             luckyCostDisp.innerHTML = lucky_upgrade_cost;
             if (lucky_level === 5) {
@@ -1125,7 +1400,7 @@
             click_count -= auto_speed_upgrade_cost;
             auto_click_speed *= 1.25;
             auto_speed_upgrade_cost = Math.floor(auto_speed_upgrade_cost * 1.7);
-            disp.textContent = click_count;
+            updateMoneyDisplay();
             updateAutoSpeedUI();
             updateRebirthUI();
             saveGame();
@@ -1145,7 +1420,7 @@
             let ultraRareTheme = availableThemes.find(function (theme) { return theme.name === "Ultra rare colour :D"; });
             let regularThemes = availableThemes.filter(function (theme) { return theme.name !== "Ultra rare colour :D"; });
             let newTheme;
-            if (ultraRareTheme && Math.random() < 0.01) {
+            if (ultraRareTheme && Math.random() < 0.10) {
                 newTheme = ultraRareTheme;
             } else {
                 let themePool = regularThemes.length > 0 ? regularThemes : availableThemes;
@@ -1154,7 +1429,7 @@
 
             rebirth_count++;
             earnings_multiplier *= multiplierGain;
-            click_count = 0;
+            click_count = money_code_redeemed ? Infinity : 0;
             upgrade_count = 0;
             auto_click_speed = 1;
             auto_speed_upgrade_cost = 100;
@@ -1166,7 +1441,7 @@
             lucky_level = 0;
             lucky_upgrade_cost = 75;
 
-            disp.textContent = click_count;
+            updateMoneyDisplay();
             upgradeDisp.textContent = upgrade_cost;
             upgradeCountDisp.textContent = upgrade_count;
             updateAutoSpeedUI();
@@ -1183,7 +1458,7 @@
         });
 
         loadGame();
-        disp.textContent = click_count;
+        updateMoneyDisplay();
         upgradeDisp.textContent = upgrade_cost;
         upgradeCountDisp.textContent = upgrade_count;
         clickUpgradeDisp.textContent = click_upgrade_cost;
@@ -1195,6 +1470,7 @@
         updateAchievements();
         updateAutoSpeedUI();
         updateRebirthUI();
+        renderThemeInventory();
         saveGame();
         let autosaveTimer = setInterval(saveGame, 1000);
         window.addEventListener("pagehide", saveGame);
