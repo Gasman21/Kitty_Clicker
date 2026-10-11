@@ -36,6 +36,77 @@
         border-color: transparent;
         background: linear-gradient(var(--black), var(--black)) padding-box, var(--rainbow) border-box;
     }
+    html.glitched-theme {
+        --glitch-cyan: #00f5ff;
+    }
+    html.glitched-theme body {
+        background-image:
+            repeating-linear-gradient(0deg, rgba(0, 245, 255, 0.05) 0 1px, transparent 1px 5px),
+            linear-gradient(125deg, rgba(255, 43, 214, 0.12), transparent 45%, rgba(0, 245, 255, 0.12));
+        background-attachment: fixed;
+    }
+    html.glitched-theme h1,
+    html.glitched-theme h2 {
+        text-shadow: 2px 0 rgba(0, 245, 255, 0.85), -2px 0 rgba(255, 43, 214, 0.85);
+    }
+    html.glitched-theme .tabs button {
+        border-color: var(--glitch-cyan);
+        box-shadow: 2px 0 rgba(255, 43, 214, 0.8);
+    }
+    html.glitched-theme .shop-item,
+    html.glitched-theme .achievement-item,
+    html.glitched-theme .rebirth-panel {
+        border-color: var(--glitch-cyan);
+        box-shadow: 3px 0 rgba(255, 43, 214, 0.65);
+    }
+    .glitch-code-panel {
+        width: min(420px, calc(100% - 32px));
+        box-sizing: border-box;
+        margin: 0 auto 24px;
+        padding: 16px;
+        border: 2px solid var(--red);
+        border-radius: 6px;
+        background: var(--black);
+        color: var(--white);
+    }
+    .glitch-code-panel h2 {
+        margin-top: 0;
+    }
+    .glitch-code-panel label {
+        display: block;
+        margin-bottom: 8px;
+    }
+    .glitch-code-controls {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .glitch-code-controls input {
+        width: min(180px, 100%);
+        min-height: 44px;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        border: 2px solid var(--red);
+        border-radius: 4px;
+        background: #ffffff;
+        color: #111111;
+        font: inherit;
+        text-align: center;
+    }
+    .glitch-code-panel button {
+        min-height: 44px;
+        padding: 8px 14px;
+        border: 2px solid var(--red);
+        border-radius: 4px;
+        background: var(--red);
+        color: var(--white);
+        cursor: pointer;
+    }
+    #glitch-code-feedback {
+        min-height: 1.5em;
+        margin: 10px 0 0;
+    }
     body {
         font-family: var(--font-family);
         font-size: var(--font-body);
@@ -262,7 +333,7 @@
     .wipe-save-button {
         display: block;
         margin: 0 auto 24px;
-        padding: 10px 18px;
+        padding: 12px 22px;
         border: 2px solid #ff595e;
         border-radius: 4px;
         background: var(--black);
@@ -422,6 +493,17 @@
             <p>Earnings multiplier: x<span id="earnings-multiplier">1</span></p>
             <p>Next rebirth bonus: random x1.25 to x2 money multiplier and a new color theme.</p>
             <p>Current theme: <span id="theme-name">Classic</span></p>
+        </section>
+        <section class="glitch-code-panel" aria-labelledby="glitch-code-title">
+            <h2 id="glitch-code-title">Secret Theme</h2>
+            <form id="glitch-code-form">
+                <label for="glitch-code-input">Enter the code here</label>
+                <div class="glitch-code-controls">
+                    <input id="glitch-code-input" type="text" inputmode="numeric" autocomplete="off" maxlength="5" required>
+                    <button type="submit">Unlock theme</button>
+                </div>
+                <p id="glitch-code-feedback" role="status" aria-live="polite"></p>
+            </form>
         </section>
         <button id="wipe-save-button" class="wipe-save-button" type="button">Wipe Save</button>
     </section>
@@ -769,6 +851,8 @@
 
                 if (savedData.currentTheme === "Rainbow") {
                     applyRainbowTheme();
+                } else if (savedData.currentTheme === "Glitched") {
+                    applyGlitchedTheme();
                 } else {
                     let savedTheme = rebirthThemes.find(function (theme) { return theme.name === savedData.currentTheme; });
                     if (savedTheme) applyTheme(savedTheme);
@@ -892,6 +976,7 @@
 
         function applyTheme(theme) {
             document.documentElement.classList.remove("rainbow-theme");
+            document.documentElement.classList.remove("glitched-theme");
             document.documentElement.style.setProperty("--red", theme.accent);
             document.documentElement.style.setProperty("--white", theme.foreground);
             document.documentElement.style.setProperty("--black", theme.background);
@@ -900,12 +985,42 @@
 
         function applyRainbowTheme() {
             let root = document.documentElement;
+            root.classList.remove("glitched-theme");
             root.classList.add("rainbow-theme");
             root.style.setProperty("--red", "#ffca3a");
             root.style.setProperty("--white", "#ffffff");
             root.style.setProperty("--black", "#120b1c");
             currentTheme = "Rainbow";
         }
+
+        function applyGlitchedTheme() {
+            let root = document.documentElement;
+            root.classList.remove("rainbow-theme");
+            root.classList.add("glitched-theme");
+            root.style.setProperty("--red", "#ff2bd6");
+            root.style.setProperty("--white", "#efff00");
+            root.style.setProperty("--black", "#090a13");
+            currentTheme = "Glitched";
+        }
+
+        let glitchCodeForm = document.getElementById("glitch-code-form");
+        let glitchCodeInput = document.getElementById("glitch-code-input");
+        let glitchCodeFeedback = document.getElementById("glitch-code-feedback");
+
+        glitchCodeForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            if (glitchCodeInput.value.trim() !== "55937") {
+                glitchCodeFeedback.textContent = "Incorrect code. Try again.";
+                glitchCodeInput.select();
+                return;
+            }
+
+            applyGlitchedTheme();
+            updateRebirthUI();
+            saveGame();
+            glitchCodeFeedback.textContent = "Glitched theme unlocked!";
+            glitchCodeInput.value = "";
+        });
 
         function updateAutoSpeedUI() {
             let formattedSpeed = Number(auto_click_speed.toFixed(2));
